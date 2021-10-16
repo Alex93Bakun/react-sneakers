@@ -58,38 +58,52 @@ header {
   }
 }
 
-.card {
-  border: 1px solid #F3F3F3;
-  padding: 25px;
-  width: 210px;
-  border-radius: 40px;
-  transition: all .2s ease-in-out;
+.cartEmpty {
+  text-align: center;
+
+  p {
+    width: 280px;
+    line-height: 24px;
+  }
+
+  .greenButton {
+    width: 245px;
+    margin-top: 20px;
+
+    &:hover {
+      img {
+        transform: rotate(180deg) translateX(3px);
+      }
+    }
+
+    img {
+      position: relative;
+      top: 1px;
+      transform: rotate(180deg);
+      margin-right: 15px;
+      transition: transform 0.15s ease-in-out;
+    }
+  }
+}
+
+.greenButton {
+  width: 100%;
+  height: 55px;
+  background: #9dd558;
+  border-radius: 18px;
+  border: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s ease-in-out;
 
   &:hover {
-    background: #FFFFFF;
-    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.07);
-    transform: translateY(-10px);
+    background: lighten(#9dd558, 5%);
   }
 
-  .favorite {
-    position: absolute;
-    cursor: pointer;
-
-  }
-
-  h5 {
-    font-weight: 400;
-    font-size: 14px;
-  }
-
-  span {
-    text-transform: uppercase;
-    font-size: 11px;
-    color: #BDBDBD;
-  }
-
-  b {
-    font-size: 14px;
+  &:active {
+    background: darken(#9dd558, 5%);
   }
 }
 
@@ -106,6 +120,14 @@ header {
   border: 1px solid #F3F3F3;
   border-radius: 10px;
   padding: 0 15px;
+  position: relative;
+
+  .inputClear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-8px);
+  }
 
   input {
     border: none;
@@ -128,7 +150,7 @@ header {
 .drawer {
   position: absolute;
   right: 0;
-  width: 385px;
+  width: 420px;
   height: 100%;
   background: #FFFFFF;
   box-shadow: -10px 4px 24px rgba(0, 0, 0, 0.1);
@@ -138,45 +160,44 @@ header {
     overflow: auto;
     margin-bottom: 40px;
   }
-
-  button {
-    padding: 18px 0;
-    background: #9DD558;
-    border-radius: 18px;
-    color: #fff;
-    border: none;
-    font-size: 16px;
-    line-height: 19px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-    &:hover {
-      background-color: lighten(#9DD558, 5%);
-    }
-
-    img {
-      margin: 0 33px 0 50px;
-    }
-  }
 }
 
 .cartTotalBlock {
+  ul {
+    display: block;
+    margin-bottom: 40px !important;
 
-  span {
-    line-height: 16px;
+    li {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 20px;
+
+      div {
+        flex: 1;
+        height: 1px;
+        border-bottom: 1px dashed #dfdfdf;
+        position: relative;
+        top: -4px;
+        margin: 0 7px;
+      }
+    }
   }
 
-  div {
-    flex: 1;
-    border-bottom: 1px dashed #DFDFDF;
-    margin: 0 10px;
-  }
+  .greenButton {
+    position: relative;
 
-  b {
-    line-height: 16px;
+    &:hover {
+      img {
+        transform: translateX(5px);
+      }
+    }
+
+    img {
+      position: absolute;
+      right: 30px;
+      top: 21px;
+      transition: transform 0.15s ease-in-out;
+    }
   }
 }
 
@@ -188,7 +209,7 @@ header {
 
   .cartItemImg {
     height: 70px;
-    width: 125px;
+    width: 130px;
     max-width: 100%;
     background-size: 70px;
     background-position: 0 0;
