@@ -4,9 +4,17 @@ import { priceFormat } from '../../utils/priceFormat';
 
 import styles from './Card.module.scss';
 
-const Card = ({ name, price, imgUrl, onFavorite, onPlus }) => {
+const Card = ({
+    id,
+    name,
+    price,
+    imgUrl,
+    onFavorite,
+    onPlus,
+    favorite = false,
+}) => {
     const [isAdded, setIsAdded] = useState(false);
-    const [isLiked, setIsLiked] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(favorite);
 
     const formattedPrice = priceFormat(price);
 
@@ -16,8 +24,8 @@ const Card = ({ name, price, imgUrl, onFavorite, onPlus }) => {
     };
 
     const onClickFavorite = () => {
-        onFavorite();
-        setIsLiked(!isLiked);
+        onFavorite({ id, name, imgUrl, price });
+        setIsFavorite(!isFavorite);
     };
 
     return (
@@ -25,7 +33,7 @@ const Card = ({ name, price, imgUrl, onFavorite, onPlus }) => {
             <div className={styles.favorite}>
                 <img
                     src={
-                        isLiked
+                        isFavorite
                             ? 'img/heart-liked.svg'
                             : 'img/heart-unliked.svg'
                     }
