@@ -1,7 +1,34 @@
-import React from 'react';
-import {priceFormat} from '../utils/priceFormat';
+import React, {useContext, useState} from 'react';
+import axios from 'axios';
 
-const CartDrawer = ({ closeCartClick, cartItems = [], onRemove }) => {
+import {priceFormat} from '../utils/priceFormat';
+import {AppContext} from '../App';
+
+import Info from './Info';
+
+const CartDrawer = ({closeCartClick, onRemove}) => {
+    const {cartItems, setCartItems} = useContext(AppContext);
+    const [orderId, setOrderId] = useState(null);
+    const [isOrdered, setIsOrdered] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const onOrderClick = async () => {
+        try {
+            setIsLoading(true);
+            const {data} = await axios.post('/orders', {items: cartItems});
+            setOrderId(data.id);
+            setIsOrdered(true);
+            setCartItems([]);
+
+            for (let i = 0; i < cartItems.length; i++) {
+                await axios.delete(`cart/${cartItems[i].id}`);
+            }
+        } catch (e) {
+            alert('Не удалось создать заказ :(');
+        }
+        setIsLoading(false);
+    };
+
     return (
         <div className="overlay">
             <div className="drawer d-flex flex-column">
@@ -59,31 +86,32 @@ const CartDrawer = ({ closeCartClick, cartItems = [], onRemove }) => {
                                     <b>1074 руб.</b>
                                 </li>
                             </ul>
-                            <button className="greenButton">
+                            <button
+                                className="greenButton"
+                                onClick={onOrderClick}
+                                disabled={isLoading}
+                            >
                                 Оформить заказ{' '}
                                 <img src="img/arrow-right.svg" alt="arrow"/>
                             </button>
                         </div>
                     </>
+                ) : isOrdered ? (
+                    <Info
+                        imgUrl="img/complete-order.jpg"
+                        title="Заказ оформлен!"
+                        description={`Ваш заказ №${orderId} скоро будет передан курьерской доставке`}
+                        width={83}
+                        height={120}
+                    />
                 ) : (
-                    <div className="cartEmpty d-flex align-center justify-center flex-column flex">
-                        <img
-                            className="mb-20"
-                            width="120px"
-                            height="120px"
-                            src="img/empty-cart.jpg"
-                            alt="Empty"
-                        />
-                        <h2>Корзина пустая</h2>
-                        <p className="opacity-6">
-                            Добавьте хотя бы одну пару кроссовок, чтобы сделать
-                            заказ.
-                        </p>
-                        <button onClick={closeCartClick} className="greenButton">
-                            <img src="img/arrow-right.svg" alt="arrow" />
-                            Вернуться назад
-                        </button>
-                    </div>
+                    <Info
+                        imgUrl="img/empty-cart.jpg"
+                        title="Корзина пустая"
+                        description="Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ."
+                        width={120}
+                        height={120}
+                    />
                 )}
             </div>
         </div>

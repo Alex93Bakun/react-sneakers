@@ -5,4 +5,4 @@ export const priceFormat = (price) => {
         ? priceArr.splice(2, 0, item)
         : priceArr.splice(1, 0, item);
     return priceArr.join('');
-}
+};
