@@ -1,48 +1,56 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Header = ({ openCartClick }) => {
+import { useCart } from '../hooks/useCart';
+
+const Header = (props) => {
+    const { totalPrice } = useCart();
+
     return (
-        <header className="d-flex justify-between align-center p-45">
+        <header className="d-flex justify-between align-center p-40">
             <Link to="/">
-                <div className="headerLeft d-flex align-center">
+                <div className="d-flex align-center">
                     <img
                         width={40}
                         height={40}
-                        src="img/logo.png"
-                        alt="logo"
-                        className="mr-15"
+                        src="/img/logo.png"
+                        alt="Logotype"
                     />
                     <div>
-                        <h3 className="headerTitle text-uppercase">
-                            React Sneakers
-                        </h3>
-                        <p className="headerSubTitle">
-                            Магазин лучшиз кроссовок
-                        </p>
+                        <h3 className="text-uppercase">React Sneakers</h3>
+                        <p className="opacity-5">Магазин лучших кроссовок</p>
                     </div>
                 </div>
             </Link>
             <ul className="d-flex">
-                <li
-                    className="mr-30 d-flex align-center cu-p"
-                    onClick={openCartClick}
-                >
-                    <img width={18} height={18} src="img/cart.svg" alt="cart" />
-                    <span>1205 руб.</span>
+                <li onClick={props.onClickCart} className="mr-30 cu-p">
+                    <img
+                        width={18}
+                        height={18}
+                        src="/img/cart.svg"
+                        alt="Корзина"
+                    />
+                    <span>{totalPrice} руб.</span>
                 </li>
-                <li className="d-flex align-center cu-p mr-30">
+                <li className="mr-20 cu-p">
                     <Link to="/favorites">
                         <img
-                            width={20}
-                            height={20}
-                            src="img/heart.svg"
-                            alt="favorites"
+                            width={18}
+                            height={18}
+                            src="/img/heart.svg"
+                            alt="Закладки"
                         />
                     </Link>
                 </li>
-                <li className="d-flex align-center cu-p">
-                    <img width={20} height={20} src="img/user.svg" alt="user" />
+                <li>
+                    <Link to="/orders">
+                        <img
+                            width={18}
+                            height={18}
+                            src="/img/user.svg"
+                            alt="Пользователь"
+                        />
+                    </Link>
                 </li>
             </ul>
         </header>

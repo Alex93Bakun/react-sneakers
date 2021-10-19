@@ -1,14 +1,15 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 import axios from 'axios';
 
 import Header from './components/Header';
-import CartDrawer from './components/CartDrawer';
+import CartDrawer from './components/CartDrawer/CartDrawer';
 
 import Home from './pages/Home';
 import Favorites from './pages/Favorites';
+import Orders from './pages/Orders';
 
-export const AppContext = createContext({});
+import AppContext from './context';
 
 const App = () => {
     const [items, setItems] = useState([]);
@@ -19,95 +20,146 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
+        async function fetchData() {
+            try {
+                const [cartResponse, favoritesResponse, itemsResponse] =
+                    await Promise.all([
+                        axios.get(
+                            'https://6169630309e030001712c346.mockapi.io/cart'
+                        ),
+                        axios.get(
+                            'https://6169630309e030001712c346.mockapi.io/favorites'
+                        ),
+                        axios.get(
+                            'https://6169630309e030001712c346.mockapi.io/items'
+                        ),
+                    ]);
 
-            const cartResponse = await axios.get('/cart');
-            const favoritesResponse = await axios.get('/favorites');
-            const itemsResponse = await axios.get('/items');
+                setIsLoading(false);
+                setCartItems(cartResponse.data);
+                setFavorites(favoritesResponse.data);
+                setItems(itemsResponse.data);
+            } catch (error) {
+                alert('Ошибка при запросе данных ;(');
+                console.error(error);
+            }
+        }
 
-            setIsLoading(false);
-
-            setCartItems(cartResponse.data);
-            setFavorites(favoritesResponse.data);
-            setItems(itemsResponse.data);
-        };
         fetchData();
     }, []);
 
     const onAddToCart = async (obj) => {
         try {
-            if (cartItems.find((cartObj) => cartObj.id === obj.id)) {
-                await axios.delete(`/cart/${obj.id}`);
+            const findItem = cartItems.find(
+                (item) => Number(item.parentId) === Number(obj.id)
+            );
+            if (findItem) {
                 setCartItems((prev) =>
-                    prev.filter((item) => item.id !== obj.id)
+                    prev.filter(
+                        (item) => Number(item.parentId) !== Number(obj.id)
+                    )
+                );
+                await axios.delete(
+                    `https://6169630309e030001712c346.mockapi.io/cart/${findItem.id}`
                 );
             } else {
-                const { data } = await axios.post('/cart', obj);
-                setCartItems((prev) => [...prev, data]);
+                setCartItems((prev) => [...prev, obj]);
+                const { data } = await axios.post(
+                    'https://6169630309e030001712c346.mockapi.io/cart',
+                    obj
+                );
+                setCartItems((prev) =>
+                    prev.map((item) => {
+                        if (item.parentId === data.parentId) {
+                            return {
+                                ...item,
+                                id: data.id,
+                            };
+                        }
+                        return item;
+                    })
+                );
             }
-        } catch (e) {
-            alert('Не удалось добавить в корзину!');
+        } catch (error) {
+            alert('Ошибка при добавлении в корзину');
+            console.error(error);
         }
     };
 
-    const onRemoveFromCart = (id) => {
-        axios.delete(`/cart/${id}`);
-        setCartItems((prev) => prev.filter((item) => item.id !== id));
+    const onRemoveItem = (id) => {
+        try {
+            axios.delete(
+                `https://6169630309e030001712c346.mockapi.io/cart/${id}`
+            );
+            setCartItems((prev) =>
+                prev.filter((item) => Number(item.id) !== Number(id))
+            );
+        } catch (error) {
+            alert('Ошибка при удалении из корзины');
+            console.error(error);
+        }
+    };
+
+    const onAddToFavorite = async (obj) => {
+        try {
+            if (
+                favorites.find((favObj) => Number(favObj.id) === Number(obj.id))
+            ) {
+                axios.delete(
+                    `https://6169630309e030001712c346.mockapi.io/favorites/${obj.id}`
+                );
+                setFavorites((prev) =>
+                    prev.filter((item) => Number(item.id) !== Number(obj.id))
+                );
+            } else {
+                const { data } = await axios.post(
+                    'https://6169630309e030001712c346.mockapi.io/favorites',
+                    obj
+                );
+                setFavorites((prev) => [...prev, data]);
+            }
+        } catch (error) {
+            alert('Не удалось добавить в фавориты');
+            console.error(error);
+        }
     };
 
     const onChangeSearchInput = (event) => {
         setSearchValue(event.target.value);
     };
 
-    const onAddToFavorite = async (obj) => {
-        try {
-            if (favorites.find((favObj) => favObj.id === obj.id)) {
-                await axios.delete(`/favorites/${obj.id}`);
-                setFavorites((prev) =>
-                    prev.filter((item) => item.id !== obj.id)
-                );
-            } else {
-                const { data } = await axios.post('/favorites', obj);
-                setFavorites((prev) => [...prev, data]);
-            }
-        } catch (e) {
-            alert('Не удалось добавить в закладки!');
-        }
-    };
-
     const isItemAdded = (id) => {
-        return cartItems.some((obj) => obj.id === id);
+        return cartItems.some((obj) => Number(obj.parentId) === Number(id));
     };
 
     return (
         <AppContext.Provider
             value={{
                 items,
-                favorites,
                 cartItems,
+                favorites,
                 isItemAdded,
                 onAddToFavorite,
+                onAddToCart,
                 setCartOpened,
                 setCartItems,
             }}
         >
             <div className="wrapper clear">
-                {cartOpened && (
-                    <CartDrawer
-                        closeCartClick={() => setCartOpened(false)}
-                        cartItems={cartItems}
-                        onRemove={onRemoveFromCart}
-                    />
-                )}
-                <Header openCartClick={() => setCartOpened(true)} />
+                <CartDrawer
+                    items={cartItems}
+                    onClose={() => setCartOpened(false)}
+                    onRemove={onRemoveItem}
+                    opened={cartOpened}
+                />
+                <Header onClickCart={() => setCartOpened(true)} />
                 <Route exact path="/">
                     <Home
+                        items={items}
+                        cartItems={cartItems}
                         searchValue={searchValue}
                         setSearchValue={setSearchValue}
                         onChangeSearchInput={onChangeSearchInput}
-                        items={items}
-                        cartItems={cartItems}
                         onAddToFavorite={onAddToFavorite}
                         onAddToCart={onAddToCart}
                         isLoading={isLoading}
@@ -115,6 +167,9 @@ const App = () => {
                 </Route>
                 <Route exact path="/favorites">
                     <Favorites />
+                </Route>
+                <Route exact path="/orders">
+                    <Orders />
                 </Route>
             </div>
         </AppContext.Provider>

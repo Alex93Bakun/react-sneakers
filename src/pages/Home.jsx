@@ -2,19 +2,19 @@ import React from 'react';
 import Card from '../components/Card/Card';
 
 const Home = ({
+    items,
     searchValue,
     setSearchValue,
     onChangeSearchInput,
-    items,
     onAddToFavorite,
     onAddToCart,
     isLoading,
 }) => {
     const renderItems = () => {
         const filteredItems = items.filter((item) =>
-            item.name.toLowerCase().includes(searchValue.toLowerCase())
+            item.title.toLowerCase().includes(searchValue.toLowerCase())
         );
-        return (isLoading ? [...Array(12)] : filteredItems).map(
+        return (isLoading ? [...Array(8)] : filteredItems).map(
             (item, index) => (
                 <Card
                     key={index}
@@ -28,28 +28,27 @@ const Home = ({
     };
 
     return (
-        <div className="content p-45">
-            <div className="d-flex align-center mb-40 justify-between">
+        <div className="content p-40">
+            <div className="d-flex align-center justify-between mb-40">
                 <h1>
                     {searchValue
                         ? `Поиск по запросу: "${searchValue}"`
-                        : `Все кроссовки`}
+                        : 'Все кроссовки'}
                 </h1>
                 <div className="search-block d-flex">
-                    <img src="img/search.svg" alt="search" />
+                    <img src="/img/search.svg" alt="Search" />
                     {searchValue && (
                         <img
-                            className="inputClear cu-p"
-                            src="img/cross.svg"
-                            alt="clear"
                             onClick={() => setSearchValue('')}
+                            className="clear cu-p"
+                            src="/img/btn-remove.svg"
+                            alt="Clear"
                         />
                     )}
                     <input
-                        type="text"
-                        placeholder="Поиск..."
                         onChange={onChangeSearchInput}
                         value={searchValue}
+                        placeholder="Поиск..."
                     />
                 </div>
             </div>

@@ -1,37 +1,35 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import ContentLoader from 'react-content-loader';
 
-import { priceFormat } from '../../utils/priceFormat';
-import { AppContext } from '../../App';
+import AppContext from '../../context';
 
 import styles from './Card.module.scss';
 
 const Card = ({
     id,
-    name,
+    title,
+    imageUrl,
     price,
-    imgUrl,
     onFavorite,
     onPlus,
-    favorite = false,
-    loading,
+    favorited = false,
+    loading = false,
 }) => {
-    const { isItemAdded } = useContext(AppContext);
-    const [isFavorite, setIsFavorite] = useState(favorite);
-
-    const formattedPrice = price && priceFormat(price);
+    const { isItemAdded } = React.useContext(AppContext);
+    const [isFavorite, setIsFavorite] = useState(favorited);
+    const obj = { id, parentId: id, title, imageUrl, price };
 
     const onClickPlus = () => {
-        onPlus({ id, name, imgUrl, price });
+        onPlus(obj);
     };
 
     const onClickFavorite = () => {
-        onFavorite({ id, name, imgUrl, price });
+        onFavorite(obj);
         setIsFavorite(!isFavorite);
     };
 
     return (
-        <div className={`${styles.card} mr-35`}>
+        <div className={`${styles.card} mr-30`}>
             {loading ? (
                 <ContentLoader
                     speed={2}
@@ -63,41 +61,45 @@ const Card = ({
                 </ContentLoader>
             ) : (
                 <>
-                    <div className={styles.favorite}>
-                        <img
-                            src={
-                                isFavorite
-                                    ? 'img/heart-liked.svg'
-                                    : 'img/heart-unliked.svg'
-                            }
-                            alt="unliked"
+                    {onFavorite && (
+                        <div
+                            className={styles.favorite}
                             onClick={onClickFavorite}
-                            className="cu-p"
-                        />
-                    </div>
+                        >
+                            <img
+                                src={
+                                    isFavorite
+                                        ? '/img/liked.svg'
+                                        : '/img/unliked.svg'
+                                }
+                                alt="Unliked"
+                            />
+                        </div>
+                    )}
                     <img
-                        width={'100%'}
+                        width="100%"
                         height={135}
-                        src={imgUrl.toString()}
-                        alt="sneakers"
-                        className="mb-15"
+                        src={imageUrl}
+                        alt="Sneakers"
                     />
-                    <h5 className="mb-10">{name}</h5>
+                    <h5>{title}</h5>
                     <div className="d-flex justify-between align-center">
                         <div className="d-flex flex-column">
-                            <span>Цена: </span>
-                            <b>{formattedPrice} руб.</b>
+                            <span>Цена:</span>
+                            <b>{price} руб.</b>
                         </div>
-                        <img
-                            src={
-                                isItemAdded(id)
-                                    ? 'img/btn-checked.svg'
-                                    : 'img/btn-plus.svg'
-                            }
-                            alt="plus"
-                            onClick={onClickPlus}
-                            className="cu-p"
-                        />
+                        {onPlus && (
+                            <img
+                                className={styles.plus}
+                                onClick={onClickPlus}
+                                src={
+                                    isItemAdded(id)
+                                        ? '/img/btn-checked.svg'
+                                        : '/img/btn-plus.svg'
+                                }
+                                alt="Plus"
+                            />
+                        )}
                     </div>
                 </>
             )}
